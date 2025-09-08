@@ -1,0 +1,12 @@
+
+/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.vscode/
+.idea/
+.spyderproject/
+.virtual_documents/ 
+.ipynb_checkpoints/
+.env
