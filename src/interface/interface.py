@@ -1,5 +1,11 @@
 import streamlit as st  
-from src import utils,functions
+import sys
+import os
+script_dir = os.path.dirname(__file__)
+project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
 
 st.set_page_config(page_title="Text Summarization", page_icon=":guardsman:", layout="wide")
 st.title("Analise de Dados Google")

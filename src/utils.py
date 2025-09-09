@@ -1,6 +1,10 @@
 import pandas as pd
+from pathlib import Path
+
 def leitura_csv():
-    df = pd.read_csv("GoogleStockPrices.csv")
+    caminho_atual = Path(__file__).parent
+    caminho_csv = caminho_atual / "data" / "GoogleStockPrices.csv"
+    df = pd.read_csv(caminho_csv) 
     df['Date'] = pd.to_datetime(df['Date'])
     return df
 
