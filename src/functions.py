@@ -2,18 +2,19 @@
 import pandas as pd 
 import numpy as np
 import matplotlib.pyplot as plt
-from src import leitura_csv 
+from utils import leitura_csv 
+import streamlit as st
 
-def evoluçao_close():
+def evolucao_close():
     df = leitura_csv()
-    plt.figure(figsize=(12,6))
-    plt.plot(df['Date'], df['Close'], label='Preço de Fechamento', color='blue')
-    plt.title('Preço de Fechamento da Ação da Google (2015-2024)')
-    plt.xlabel('Data')
-    plt.ylabel('Preço ($)')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(df['Date'], df['Close'], label='Preço de Fechamento', color='blue')
+    ax.set_title('Preço de Fechamento da Ação da Google (2015-2024)')
+    ax.set_xlabel('Data')
+    ax.set_ylabel('Preço ($)')
+    ax.grid(True)
+    ax.legend()
+    st.pyplot(fig)
 
 def media_volume():
     df = leitura_csv()
