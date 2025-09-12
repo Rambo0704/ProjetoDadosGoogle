@@ -7,44 +7,23 @@ import streamlit as st
 
 def evolucao_close():
     df = leitura_csv()
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(df['Date'], df['Close'], label='Preço de Fechamento', color='blue')
-    ax.set_title('Preço de Fechamento da Ação da Google (2015-2024)')
-    ax.set_xlabel('Data')
-    ax.set_ylabel('Preço ($)')
-    ax.grid(True)
-    ax.legend()
-    st.pyplot(fig)
-
+    st.line_chart(df.set_index('Date')['Close'])
+    
 def media_volume():
     df = leitura_csv()
     df['month'] = df['Date'].dt.month
     df['year'] = df['Date'].dt.year
-    media = df.groupby(['year', 'month'])['Volume'].mean()
+    media = df.groupby(['year', 'month'])['Volume'].mean().reset_index()
 
-    plt.figure(figsize=(15, 7)) 
-    media.plot(kind='bar', color='skyblue') 
-    plt.title('Média Mensal de Volume por Ano')
-    plt.xlabel('Ano e Mês')
-    plt.ylabel('Volume Médio')
-    plt.xticks(rotation=45)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
+    media['AnoMes'] = pd.to_datetime(media['year'].astype(str) + '-' + media['month'].astype(str) + '-01')
+
+    st.bar_chart(media.set_index('AnoMes')['Volume'])
 
 def variacao_preço_ano():
     df = leitura_csv()
     df['year'] = df['Date'].dt.year
     variacao = df.groupby('year')['Close'].agg(lambda x: x.max() - x.min())
-    print(variacao)
-    plt.figure(figsize=(12,6))
-    variacao.plot(kind='bar', color='tomato', edgecolor='black')
-    plt.title('Variação Anual do Preço de Fechamento')
-    plt.xlabel('Ano')
-    plt.ylabel('Variação de Preço ($)')
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
+    st.bar_chart(variacao)
 
 def desvio_padrao():
     df = leitura_csv()
