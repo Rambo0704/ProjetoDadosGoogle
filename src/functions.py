@@ -30,16 +30,7 @@ def desvio_padrao():
     df['year'] = df['Date'].dt.year
     df['month'] = df['Date'].dt.month
     desvio_padrao = df.groupby(['year','month'])['Close'].std().unstack()
-    print(desvio_padrao)
-    plt.figure(figsize=(15, 6))
-    plt.imshow(desvio_padrao, aspect='auto', cmap='hot', interpolation='nearest')
-    plt.title('Volatilidade Mensal do Preço de Fechamento (Desvio Padrão)')
-    plt.xlabel('Mês')
-    plt.ylabel('Ano')
-    plt.colorbar(label='Desvio Padrão')
-    plt.xticks(ticks=range(12), labels=range(1, 13))
-    plt.yticks(ticks=range(len(desvio_padrao.index)), labels=desvio_padrao.index)
-    plt.show()
+    st.bar_chart(desvio_padrao)
 
 
 def analise_de_tendencias():
@@ -73,7 +64,6 @@ def detecta_anomalias(ano_escolhido=2020):
     df['anomalia'] = (df['Close'] > df['media_dia'] + 2 * df['std_dia']) | \
                      (df['Close'] < df['media_dia'] - 2 * df['std_dia'])
 
-    import matplotlib.pyplot as plt
     plt.figure(figsize=(15, 6))
     plt.plot(df['Date'], df['Close'], label='Fechamento')
     plt.scatter(df[df['anomalia']]['Date'], df[df['anomalia']]['Close'],
