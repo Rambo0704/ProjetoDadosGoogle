@@ -3,7 +3,7 @@ import sys
 import os
 import datetime
 import yfinance as yf
-
+import time
 script_dir = os.path.dirname(__file__)
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
 if project_root not in sys.path:
@@ -21,9 +21,7 @@ st.set_page_config(
 st.title("📊 Dashboard de Ações da Google (GOOGL)")
 st.markdown(
     """
-    Este painel interativo apresenta análises financeiras da **Google**, 
-    incluindo **preço de fechamento histórico**, **volume de negociações**
-    e **variações percentuais** ao longo do tempo.  
+    Este painel interativo apresenta análises financeiras da **Google**.
     """
 )
 
@@ -56,24 +54,37 @@ with st.container():
 st.divider()
 
 st.sidebar.header("Menu de Navegação")
-menu = st.sidebar.radio(
+menu = st.sidebar.selectbox(
     "Escolha a análise:",
     [
         "Preço de Fechamento",
         "Média Mensal de Volume",
-        "Variação Percentual"
+        "Variação Percentual",
+        "Desvio Padrão"
     ]
 )
 
 if menu == "Preço de Fechamento":
+    with st.spinner("Carregando"):
+        time.sleep(3)
     st.subheader("Evolução do preço de fechamento")
     functions.evolucao_close()
 elif menu == "Média Mensal de Volume":
+    with st.spinner("Carregando"):
+        time.sleep(3)    
     st.subheader("Volume médio mensal")
     functions.media_volume()
 elif menu == "Variação Percentual":
+    with st.spinner("Carregando"):
+        time.sleep(3)    
     st.subheader("Variação percentual do preço")
     functions.variacao_preço_ano()
+elif menu == "Desvio Padrão":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Desvio Padrão")
+    functions.desvio_padrao()
+
 
 st.divider()
 
