@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils import leitura_csv 
 import streamlit as st
-
 def evolucao_close():
     df = leitura_csv()
     st.line_chart(df.set_index('Date')['Close'])
@@ -29,25 +28,16 @@ def desvio_padrao():
     df = leitura_csv()
     df['year'] = df['Date'].dt.year
     df['month'] = df['Date'].dt.month
-    desvio_padrao = df.groupby(['year','month'])['Close'].std().unstack()
-    st.bar_chart(desvio_padrao)
-
+    desvios = df.groupby(['year','month'])['Close'].std().reset_index()
+    desvios['AnoMes'] = pd.to_datetime(desvios['year'].astype(str) + '-' + desvios['month'].astype(str) + '-01')
+    st.bar_chart(desvios.set_index('AnoMes')['Close'])
 
 def analise_de_tendencias():
     df = leitura_csv()
+    df['Date'] = pd.to_datetime(df['Date'])
+    df = df.set_index('Date')
     df['media_movel'] = df['Close'].rolling(window=30).mean()
-    print(df['media_movel'])
-    plt.figure(figsize=(15, 6))
-    plt.plot(df['Date'], df['Close'], label='Preço de Fechamento', alpha=0.5)
-    plt.plot(df['Date'], df['media_movel'], label='Média Móvel (30 dias)', color='red')
-    plt.title('Tendência do Preço de Fechamento com Média Móvel (30 dias)')
-    plt.xlabel('Data')
-    plt.ylabel('Preço ($)')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
+    st.line_chart(df[['Close', 'media_movel']])
 
 def detecta_anomalias(ano_escolhido=2020):
     df = leitura_csv()
@@ -64,19 +54,14 @@ def detecta_anomalias(ano_escolhido=2020):
     df['anomalia'] = (df['Close'] > df['media_dia'] + 2 * df['std_dia']) | \
                      (df['Close'] < df['media_dia'] - 2 * df['std_dia'])
 
-    plt.figure(figsize=(15, 6))
-    plt.plot(df['Date'], df['Close'], label='Fechamento')
-    plt.scatter(df[df['anomalia']]['Date'], df[df['anomalia']]['Close'],
-                color='red', label='Anomalias', zorder=5)
-    plt.title(f'Anomalias no Preço de Fechamento em {ano_escolhido}')
-    plt.xlabel('Data')
-    plt.ylabel('Preço de Fechamento ($)')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-
+    df_plot = df.set_index('Date')[['Close']]
+    st.subheader(f'Preço de Fechamento em {ano_escolhido}')
+    st.line_chart(df_plot)
+    df_anomalia = df[df['anomalia']].set_index('Date')[['Close']]
+    if not df_anomalia.empty:
+        st.subheader('Anomalias')
+        st.bar_chart(df_anomalia)
+        
 def prev_tendencias():
     df = leitura_csv()
     df['media_curta'] = df['Close'].rolling(window = 20).mean()

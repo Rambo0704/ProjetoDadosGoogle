@@ -4,6 +4,7 @@ import os
 import datetime
 import yfinance as yf
 import time
+import pandas as pd
 script_dir = os.path.dirname(__file__)
 project_root = os.path.abspath(os.path.join(script_dir, '..'))
 if project_root not in sys.path:
@@ -57,19 +58,29 @@ st.sidebar.header("Menu de Navegação")
 menu = st.sidebar.selectbox(
     "Escolha a análise:",
     [
+        "Exibir DataFrame",
         "Preço de Fechamento",
-        "Média Mensal de Volume",
+        "Volume Médio Mensal",
         "Variação Percentual",
-        "Desvio Padrão"
+        "Desvio Padrão",
+        "Média Móvel",
+        "Detectar Anomalias"
     ]
 )
+df = pd.read_csv("../data/GoogleStockPrices.csv")
+if menu == "Exibir DataFrame":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Veja o DataFrame completo")
+    num_linhas = st.slider("Numero de linha a exibir", 5,2515)
+    st.dataframe(df.head(num_linhas))
 
-if menu == "Preço de Fechamento":
+elif menu == "Preço de Fechamento":
     with st.spinner("Carregando"):
         time.sleep(3)
     st.subheader("Evolução do preço de fechamento")
     functions.evolucao_close()
-elif menu == "Média Mensal de Volume":
+elif menu == "Volume Médio Mensal":
     with st.spinner("Carregando"):
         time.sleep(3)    
     st.subheader("Volume médio mensal")
@@ -84,6 +95,17 @@ elif menu == "Desvio Padrão":
         time.sleep(3)
     st.subheader("Desvio Padrão")
     functions.desvio_padrao()
+elif menu == "Média Móvel":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Média Móvel para análise de tendencias ")
+    functions.analise_de_tendencias()
+elif menu == "Detectar Anomalias":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Detecta Anomalias de cada ano")
+    ano_selecionado = st.select_slider("Escolha o ano",2015,2024)
+    functions.analise_de_tendencias(ano_selecionado)
 
 
 st.divider()
