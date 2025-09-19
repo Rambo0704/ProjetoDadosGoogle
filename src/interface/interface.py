@@ -64,7 +64,10 @@ menu = st.sidebar.selectbox(
         "Variação Percentual",
         "Desvio Padrão",
         "Média Móvel",
-        "Detectar Anomalias"
+        "Tendências Passadas",
+        "Retorno Diário",
+        "Volatilidade Anual",
+        "Sharpe Ratio"
     ]
 )
 df = pd.read_csv("../data/GoogleStockPrices.csv")
@@ -100,20 +103,35 @@ elif menu == "Média Móvel":
         time.sleep(3)
     st.subheader("Média Móvel para análise de tendencias ")
     functions.analise_de_tendencias()
-elif menu == "Detectar Anomalias":
+elif menu == "Tendências Passadas":
     with st.spinner("Carregando"):
         time.sleep(3)
-    st.subheader("Detecta Anomalias de cada ano")
-    ano_selecionado = st.select_slider("Escolha o ano",2015,2024)
-    functions.analise_de_tendencias(ano_selecionado)
+    st.subheader("Tendências Passadas")
+    functions.prev_tendencias()
+elif menu == "Retorno Diário":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Retorno Diário do Fechamento de Ações")
+    functions.retorno_diario()
+elif menu == "Volatilidade Anual":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Volatilidade Anual")
+    functions.volatilidade_anual()
 
-
+elif menu == "Sharpe Ratio":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Sharpe Ratio Anual")
+    functions.sharpe_ratio_anual
+  
 st.divider()
 
 st.markdown(
     """
     <div style='text-align:center; padding:10px; color:gray; font-size:14px'>
-        Desenvolvido por <b>Gabriel</b>
+        Desenvolvido por <b>Gabriel Rambo</b><br>
+        <b>-- https://github.com/Rambo0704 --<b>
     </div>
     """,
     unsafe_allow_html=True

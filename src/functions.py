@@ -39,7 +39,7 @@ def analise_de_tendencias():
     df['media_movel'] = df['Close'].rolling(window=30).mean()
     st.line_chart(df[['Close', 'media_movel']])
 
-def detecta_anomalias(ano_escolhido=2020):
+def detecta_anomalias(ano_escolhido): #desenvolvido para fins de estudos,mas nao necessaria,pois nao possue anomalias
     df = leitura_csv()
     df['year'] = df['Date'].dt.year
     df = df[df['year'] == ano_escolhido]
@@ -54,13 +54,9 @@ def detecta_anomalias(ano_escolhido=2020):
     df['anomalia'] = (df['Close'] > df['media_dia'] + 2 * df['std_dia']) | \
                      (df['Close'] < df['media_dia'] - 2 * df['std_dia'])
 
-    df_plot = df.set_index('Date')[['Close']]
-    st.subheader(f'Preço de Fechamento em {ano_escolhido}')
-    st.line_chart(df_plot)
     df_anomalia = df[df['anomalia']].set_index('Date')[['Close']]
-    if not df_anomalia.empty:
-        st.subheader('Anomalias')
-        st.bar_chart(df_anomalia)
+    st.subheader('Anomalias')
+    st.bar_chart(df_anomalia)
         
 def prev_tendencias():
     df = leitura_csv()
@@ -74,16 +70,19 @@ def prev_tendencias():
     plt.plot(df['Date'], df['media_curta'], label='Média Curta (20)', color='blue')
     plt.plot(df['Date'], df['media_longa'], label='Média Longa (50)', color='orange')
 
-    plt.scatter(df.loc[df['compra'], 'Date'], df.loc[df['compra'], 'Close'], label='Compra', marker='^', color='green', s=100)
-    plt.scatter(df.loc[df['venda'], 'Date'], df.loc[df['venda'], 'Close'], label='Venda', marker='v', color='red', s=100)
-
+    plt.scatter(df.loc[df['compra'], 'Date'], df.loc[df['compra'], 'Close'], 
+                label='Compra', marker='^', color='green', s=100)
+    plt.scatter(df.loc[df['venda'], 'Date'], df.loc[df['venda'], 'Close'], 
+                label='Venda', marker='v', color='red', s=100)
+    
     plt.title('Análise de Tendência com Médias Móveis')
     plt.xlabel('Data')
     plt.ylabel('Preço ($)')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+    fig = plt.gcf()
+    st.pyplot(fig)
 
 
 def retorno_diario():
@@ -96,28 +95,15 @@ def retorno_diario():
     plt.ylabel('Frequência')
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
-    media = df['retorno_diario'].mean()
-    desvio = df['retorno_diario'].std()
-    print(f"Media:{media}")
-    print(f"Desvio:{desvio}")
-
+    fig = plt.gcf()
+    st.pyplot(fig)
 
 def volatilidade_anual():
     df = leitura_csv()
     df['retorno_diario'] = df['Close'].pct_change()
     df['year'] = df['Date'].dt.year
     volatilidade_anual = df.groupby('year')['retorno_diario'].std()*np.sqrt(252) #multiplicando pelo numero medio de pregoes(dias uteis da bolsa) por ano
-    plt.figure(figsize=(12, 6))
-    volatilidade_anual.plot(kind='bar', color='salmon', edgecolor='black')
-    plt.title('Volatilidade Anual das Ações')
-    plt.xlabel('Ano')
-    plt.ylabel('Volatilidade Anual (Desvio Padrão)')
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
-    return volatilidade_anual
-
+    st.bar_chart(volatilidade_anual)
 
 def sharpe_ratio_anual():
     df = leitura_csv()
@@ -126,18 +112,7 @@ def sharpe_ratio_anual():
     retorno_medio_anual = df.groupby('year')['retorno_diario'].mean()*253
     volatilidade_anual = df.groupby('year')['retorno_diario'].std()*np.sqrt(252)
     sharpe_ratio = retorno_medio_anual/volatilidade_anual
-    print(sharpe_ratio)
-    plt.figure(figsize=(12, 6))
-    sharpe_ratio.plot(kind='bar', color='mediumseagreen', edgecolor='black')
-    plt.title('Sharpe Ratio Anual')
-    plt.xlabel('Ano')
-    plt.ylabel('Sharpe Ratio')
-    plt.axhline(y=1, color='red', linestyle='--', label='Referência: 1.0')
-    plt.grid(axis='y', linestyle=':', alpha=0.7)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
+    st.area_chart(sharpe_ratio)
 
 def identificar_drawdowns():
     df = leitura_csv()
