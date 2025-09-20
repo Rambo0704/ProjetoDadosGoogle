@@ -112,7 +112,7 @@ def sharpe_ratio_anual():
     retorno_medio_anual = df.groupby('year')['retorno_diario'].mean()*253
     volatilidade_anual = df.groupby('year')['retorno_diario'].std()*np.sqrt(252)
     sharpe_ratio = retorno_medio_anual/volatilidade_anual
-    st.area_chart(sharpe_ratio)
+    st.bar_chart(sharpe_ratio)
 
 def identificar_drawdowns():
     df = leitura_csv()

@@ -123,7 +123,7 @@ elif menu == "Sharpe Ratio":
     with st.spinner("Carregando"):
         time.sleep(3)
     st.subheader("Sharpe Ratio Anual")
-    functions.sharpe_ratio_anual
+    functions.sharpe_ratio_anual()
   
 st.divider()
 
