@@ -67,10 +67,13 @@ menu = st.sidebar.selectbox(
         "Tendências Passadas",
         "Retorno Diário",
         "Volatilidade Anual",
-        "Sharpe Ratio"
+        "Sharpe Ratio",
+        "Drawdowns",
     ]
 )
+
 df = pd.read_csv("../data/GoogleStockPrices.csv")
+
 if menu == "Exibir DataFrame":
     with st.spinner("Carregando"):
         time.sleep(3)
@@ -83,36 +86,43 @@ elif menu == "Preço de Fechamento":
         time.sleep(3)
     st.subheader("Evolução do preço de fechamento")
     functions.evolucao_close()
+
 elif menu == "Volume Médio Mensal":
     with st.spinner("Carregando"):
         time.sleep(3)    
     st.subheader("Volume médio mensal")
     functions.media_volume()
+
 elif menu == "Variação Percentual":
     with st.spinner("Carregando"):
         time.sleep(3)    
     st.subheader("Variação percentual do preço")
     functions.variacao_preço_ano()
+
 elif menu == "Desvio Padrão":
     with st.spinner("Carregando"):
         time.sleep(3)
     st.subheader("Desvio Padrão")
     functions.desvio_padrao()
+
 elif menu == "Média Móvel":
     with st.spinner("Carregando"):
         time.sleep(3)
     st.subheader("Média Móvel para análise de tendencias ")
     functions.analise_de_tendencias()
+
 elif menu == "Tendências Passadas":
     with st.spinner("Carregando"):
         time.sleep(3)
     st.subheader("Tendências Passadas")
     functions.prev_tendencias()
+
 elif menu == "Retorno Diário":
     with st.spinner("Carregando"):
         time.sleep(3)
     st.subheader("Retorno Diário do Fechamento de Ações")
     functions.retorno_diario()
+
 elif menu == "Volatilidade Anual":
     with st.spinner("Carregando"):
         time.sleep(3)
@@ -124,6 +134,12 @@ elif menu == "Sharpe Ratio":
         time.sleep(3)
     st.subheader("Sharpe Ratio Anual")
     functions.sharpe_ratio_anual()
+
+elif menu == "Drawdowns":
+    with st.spinner("Carregando"):
+        time.sleep(3)
+    st.subheader("Identificar Drawdowns")
+    functions.identificar_drawdowns()
   
 st.divider()
 

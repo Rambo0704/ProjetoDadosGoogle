@@ -120,17 +120,7 @@ def identificar_drawdowns():
     df['valor_acumulado'] = (1+df['retorno_diario']).cumprod()
     df['pico'] = df['valor_acumulado'].cummax()
     df['drawdown'] = (df['valor_acumulado'] - df['pico'])/ df['pico']
-    print(df['drawdown'])
-    plt.figure(figsize=(12, 6))
-    plt.plot(df['Date'], df['valor_acumulado'], label='Valor Acumulado')
-    plt.fill_between(df['Date'], df['drawdown'], 0, color='red', alpha=0.3, label='Drawdown')
-    plt.title('Drawdown ao Longo do Tempo')
-    plt.xlabel('Data')
-    plt.ylabel('Valor / Drawdown')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+    st.line_chart(df[['valor_acumulado', 'drawdown']])
 
 def comparativo_ano_perfomance():
     df = leitura_csv()
