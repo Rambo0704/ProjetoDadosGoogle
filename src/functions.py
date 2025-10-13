@@ -4,8 +4,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils import leitura_csv 
 import streamlit as st
-def evolucao_close():
+def evolucao_close(ano_inicial=None, ano_final=None):
     df = leitura_csv()
+    df['Date'] = pd.to_datetime(df['Date'])
+    df = df.sort_values('Date')
+    df['Year'] = df['Date'].dt.year
+
+    if ano_inicial is not None:
+        df = df[df['Year'] >= ano_inicial]
+    if ano_final is not None:
+        df = df[df['Year'] <= ano_final]
+
+    st.subheader(f"Evolução do Preço de Fechamento")
     st.line_chart(df.set_index('Date')['Close'])
     
 def media_volume():
@@ -120,7 +130,17 @@ def identificar_drawdowns():
     df['valor_acumulado'] = (1+df['retorno_diario']).cumprod()
     df['pico'] = df['valor_acumulado'].cummax()
     df['drawdown'] = (df['valor_acumulado'] - df['pico'])/ df['pico']
-    st.line_chart(df[['valor_acumulado', 'drawdown']])
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['Date'], df['valor_acumulado'], label='Valor Acumulado')
+    plt.fill_between(df['Date'], df['drawdown'], 0, color='red', alpha=0.3, label='Drawdown')
+    plt.title('Drawdown ao Longo do Tempo')
+    plt.xlabel('Data')
+    plt.ylabel('Valor / Drawdown')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    fig = plt.gcf()
+    st.pyplot(fig)
 
 def comparativo_ano_perfomance():
     df = leitura_csv()
