@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils import leitura_csv 
 import streamlit as st
+import plotly.graph_objects as go
 def evolucao_close(ano_inicial=None, ano_final=None):
     df = leitura_csv()
     df['Date'] = pd.to_datetime(df['Date'])
@@ -127,20 +128,43 @@ def sharpe_ratio_anual():
 def identificar_drawdowns():
     df = leitura_csv()
     df['retorno_diario'] = df['Close'].pct_change()
-    df['valor_acumulado'] = (1+df['retorno_diario']).cumprod()
+    df['valor_acumulado'] = (1 + df['retorno_diario']).cumprod()
     df['pico'] = df['valor_acumulado'].cummax()
-    df['drawdown'] = (df['valor_acumulado'] - df['pico'])/ df['pico']
-    plt.figure(figsize=(12, 6))
-    plt.plot(df['Date'], df['valor_acumulado'], label='Valor Acumulado')
-    plt.fill_between(df['Date'], df['drawdown'], 0, color='red', alpha=0.3, label='Drawdown')
-    plt.title('Drawdown ao Longo do Tempo')
-    plt.xlabel('Data')
-    plt.ylabel('Valor / Drawdown')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    fig = plt.gcf()
-    st.pyplot(fig)
+    df['drawdown'] = (df['valor_acumulado'] - df['pico']) / df['pico']
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=df['Date'], 
+        y=df['valor_acumulado'],
+        mode='lines',
+        name='Valor Acumulado',
+        line=dict(color='#00b4d8', width=2)
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df['Date'],
+        y=df['drawdown'],
+        fill='tozeroy',
+        mode='lines',
+        name='Drawdown',
+        line=dict(color='rgba(255, 99, 71, 0.0)'),
+        fillcolor='rgba(255, 99, 71, 0.4)'
+    ))
+
+    fig.update_layout(
+        title="📉 Drawdowns ao Longo do Tempo",
+        template="plotly_dark",
+        xaxis_title="Data",
+        yaxis_title="Valor Acumulado / Drawdown",
+        legend=dict(orientation="h", y=-0.2, x=0.3),
+        height=500,
+        plot_bgcolor="#0e1117",
+        paper_bgcolor="#0e1117",
+        font=dict(color="#e6e6e6")
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 def comparativo_ano_perfomance():
     df = leitura_csv()
