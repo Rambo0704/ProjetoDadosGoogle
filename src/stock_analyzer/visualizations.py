@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from utils import leitura_csv 
 import streamlit as st
 import plotly.graph_objects as go
+
 def evolucao_close(ano_inicial=None, ano_final=None):
     df = leitura_csv()
     df['Date'] = pd.to_datetime(df['Date'])
@@ -71,30 +72,57 @@ def detecta_anomalias(ano_escolhido): #desenvolvido para fins de estudos,mas nao
         
 def prev_tendencias():
     df = leitura_csv()
-    df['media_curta'] = df['Close'].rolling(window = 20).mean()
-    df['media_longa'] = df['Close'].rolling(window = 50).mean()
+    df['media_curta'] = df['Close'].rolling(window=20).mean()
+    df['media_longa'] = df['Close'].rolling(window=50).mean()
     df['compra'] = (df['media_curta'] > df['media_longa']) & (df['media_curta'].shift(1) <= df['media_longa'].shift(1))
     df['venda'] = (df['media_curta'] < df['media_longa']) & (df['media_curta'].shift(1) >= df['media_longa'].shift(1))
-    
-    plt.figure(figsize=(15,6))
-    plt.plot(df['Date'], df['Close'], label='Preço Fechamento', color='gray', alpha=0.4)
-    plt.plot(df['Date'], df['media_curta'], label='Média Curta (20)', color='blue')
-    plt.plot(df['Date'], df['media_longa'], label='Média Longa (50)', color='orange')
 
-    plt.scatter(df.loc[df['compra'], 'Date'], df.loc[df['compra'], 'Close'], 
-                label='Compra', marker='^', color='green', s=100)
-    plt.scatter(df.loc[df['venda'], 'Date'], df.loc[df['venda'], 'Close'], 
-                label='Venda', marker='v', color='red', s=100)
-    
-    plt.title('Análise de Tendência com Médias Móveis')
-    plt.xlabel('Data')
-    plt.ylabel('Preço ($)')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    fig = plt.gcf()
-    st.pyplot(fig)
+    fig = go.Figure()
 
+    fig.add_trace(go.Scatter(
+        x=df['Date'], y=df['Close'],
+        mode='lines', name='Preço Fechamento',
+        line=dict(color='lightgray', width=1.5)
+    ))
+    fig.add_trace(go.Scatter(
+        x=df['Date'], y=df['media_curta'],
+        mode='lines', name='Média Curta (20)',
+        line=dict(color='#00BFFF', width=2)
+    ))
+    fig.add_trace(go.Scatter(
+        x=df['Date'], y=df['media_longa'],
+        mode='lines', name='Média Longa (50)',
+        line=dict(color='#FFA500', width=2)
+    ))
+    fig.add_trace(go.Scatter(
+        x=df.loc[df['compra'], 'Date'],
+        y=df.loc[df['compra'], 'Close'],
+        mode='markers',
+        name='Compra',
+        marker=dict(symbol='triangle-up', size=10, color='lime', line=dict(color='black', width=1))
+    ))
+    fig.add_trace(go.Scatter(
+        x=df.loc[df['venda'], 'Date'],
+        y=df.loc[df['venda'], 'Close'],
+        mode='markers',
+        name='Venda',
+        marker=dict(symbol='triangle-down', size=10, color='red', line=dict(color='black', width=1))
+    ))
+    fig.update_layout(
+        xaxis_title='Data',
+        yaxis_title='Preço ($)',
+        template='plotly_dark',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        legend=dict(
+            bgcolor='rgba(0,0,0,0)',
+            bordercolor='rgba(255,255,255,0.1)',
+            borderwidth=1
+        ),
+        font=dict(color='white'),
+        hovermode='x unified'
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 def retorno_diario():
     df = leitura_csv()

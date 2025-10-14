@@ -1,16 +1,10 @@
 import streamlit as st
-import sys
-import os
 import datetime
 import yfinance as yf
 import time
 import pandas as pd
-script_dir = os.path.dirname(__file__)
-project_root = os.path.abspath(os.path.join(script_dir, '..'))
-if project_root not in sys.path:
-    sys.path.append(project_root)
-
-import functions
+from utils import leitura_csv
+import visualizations
 
 st.set_page_config(
     page_title="Google Stocks Dashboard",
@@ -97,7 +91,7 @@ col2.metric("Volume Médio (3M)", f"{volume_medio:,}")
 col3.metric("Última Atualização", datetime.date.today().strftime("%d/%m/%Y"))
 
 st.divider()
-df = pd.read_csv("../data/GoogleStockPrices.csv")
+df = leitura_csv()
 
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
     "📁 DataFrame",
@@ -116,58 +110,64 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
 with tab1:
     with st.spinner("Carregando DataFrame..."):
         time.sleep(1)
+    st.caption("Esta área apresenta os dados brutos e tratados (tabela) que alimentam todo o dashboard. Sua função é garantir a transparência e a rastreabilidade das informações, " \
+    "permitindo que o usuário verifique a fonte exata de cada cálculo e a integridade dos dados históricos da ação.")
     num_linhas = st.slider("Número de linhas a exibir", 5, 2515)
     st.dataframe(df.head(num_linhas), use_container_width=True)
 
 with tab2:
     with st.spinner("Gerando gráfico..."):
         time.sleep(1)
-    functions.evolucao_close()
+    st.caption("Visualiza o histórico do preço de fechamento da ação em um gráfico de linha." \
+    " Permite filtrar o período pelos anos inicial e final, mostrando claramente a tendência de valorização ou desvalorização da Google no tempo.")
+    anos = df['Date'].dt.year.unique()
+    ano_inicial,ano_final = st.slider("Selecionae o intervalo de anos",min_value=min(anos),max_value=max(anos),value=(min(anos), max(anos)))
+    visualizations.evolucao_close(ano_inicial,ano_final)
 
 with tab3:
     with st.spinner("Carregando..."):
         time.sleep(1)
-    functions.media_volume()
+    visualizations.media_volume()
 
 with tab4:
     with st.spinner("Calculando..."):
         time.sleep(1)
-    functions.variacao_preço_ano()
+    visualizations.variacao_preço_ano()
 
 with tab5:
     with st.spinner("Calculando..."):
         time.sleep(1)
-    functions.desvio_padrao()
+    visualizations.desvio_padrao()
 
 with tab6:
     with st.spinner("Analisando..."):
         time.sleep(1)
-    functions.analise_de_tendencias()
+    visualizations.analise_de_tendencias()
 
 with tab7:
     with st.spinner("Processando..."):
         time.sleep(1)
-    functions.prev_tendencias()
+    visualizations.prev_tendencias()
 
 with tab8:
     with st.spinner("Calculando retornos..."):
         time.sleep(1)
-    functions.retorno_diario()
+    visualizations.retorno_diario()
 
 with tab9:
     with st.spinner("Calculando volatilidade..."):
         time.sleep(1)
-    functions.volatilidade_anual()
+    visualizations.volatilidade_anual()
 
 with tab10:
     with st.spinner("Calculando Sharpe Ratio..."):
         time.sleep(1)
-    functions.sharpe_ratio_anual()
+    visualizations.sharpe_ratio_anual()
 
 with tab11:
     with st.spinner("Identificando drawdowns..."):
         time.sleep(1)
-    functions.identificar_drawdowns()
+    visualizations.identificar_drawdowns()
 
 st.divider()
 
