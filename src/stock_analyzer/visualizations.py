@@ -181,7 +181,6 @@ def identificar_drawdowns():
     ))
 
     fig.update_layout(
-        title="📉 Drawdowns ao Longo do Tempo",
         template="plotly_dark",
         xaxis_title="Data",
         yaxis_title="Valor Acumulado / Drawdown",
