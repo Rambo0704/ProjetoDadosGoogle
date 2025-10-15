@@ -3,6 +3,7 @@ import datetime
 import yfinance as yf
 import time
 import pandas as pd
+import numpy as np
 from utils import leitura_csv
 import visualizations
 
@@ -89,7 +90,6 @@ col1, col2, col3 = st.columns(3)
 col1.metric("Preço Atual", f"${preco_atual:.2f}", f"{variacao_pct:+.2f}%")
 col2.metric("Volume Médio (3M)", f"{volume_medio:,}")
 col3.metric("Última Atualização", datetime.date.today().strftime("%d/%m/%Y"))
-
 st.divider()
 df = leitura_csv()
 
@@ -113,7 +113,7 @@ with tab1:
     st.caption("Esta área apresenta os dados brutos e tratados (tabela) que alimentam todo o dashboard. Sua função é garantir a transparência e a rastreabilidade das informações, " \
     "permitindo que o usuário verifique a fonte exata de cada cálculo e a integridade dos dados históricos da ação.")
     num_linhas = st.slider("Número de linhas a exibir", 5, 2515)
-    st.dataframe(df.head(num_linhas), use_container_width=True)
+    st.dataframe(df.head(num_linhas), width="stretch")
 
 with tab2:
     with st.spinner("Gerando gráfico..."):
@@ -127,26 +127,55 @@ with tab2:
 with tab3:
     with st.spinner("Carregando..."):
         time.sleep(1)
-    visualizations.media_volume()
+    st.caption("Calcula e mostra a média mensal do volume negociado em um gráfico de barras." \
+    " Ajuda a identificar a liquidez e o interesse do mercado na ação, com opção de filtrar por ano.")
+
+    geral = st.checkbox("Todos os anos", value = True)
+
+    if geral:
+        ano_escolhido = None
+    else:    
+        ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio")
+    visualizations.media_volume(ano_escolhido)
 
 with tab4:
     with st.spinner("Calculando..."):
         time.sleep(1)
+    st.caption("Calcula e mostra, em um gráfico de barras, " \
+    "a diferença entre o preço máximo e mínimo da ação em cada ano. Indica a volatilidade anual, destacando os anos de maior amplitude de preços.")
     visualizations.variacao_preço_ano()
 
 with tab5:
     with st.spinner("Calculando..."):
         time.sleep(1)
-    visualizations.desvio_padrao()
+    st.caption("Calcula o desvio padrão mensal do preço de fechamento ('Close') em um gráfico de barras. Essencial para medir o risco e a volatilidade da ação." \
+    "Permite filtrar o cálculo por ano para analisar a instabilidade em períodos específicos.")
+
+    geral = st.checkbox("Todos os anos", value = True,key="dp_todos_anos_checkbox")
+
+    if geral:
+        ano_escolhido = None
+    else: 
+        ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)))
+    visualizations.desvio_padrao(ano_escolhido)
 
 with tab6:
     with st.spinner("Analisando..."):
         time.sleep(1)
-    visualizations.analise_de_tendencias()
+    st.caption("Calcula e exibe a Média Móvel de 30 dias do preço de fechamento ('Close') em um gráfico de linha, junto ao preço real. É uma ferramenta essencial para filtrar o ruído do mercado e identificar a tendência principal (alta, baixa ou lateralização) da ação da Google. " \
+    "Permite filtrar o período de análise pelas datas inicial e final.")
+    dia_ano = np.array(df["Date"].dt.to_pydatetime())
+    ano_inicial,ano_final = st.slider("Selecionae o intervalo de anos",min_value=min(dia_ano),max_value=max(dia_ano),value=(min(dia_ano), max(dia_ano)),key="dp_filtro_media_movel")
+    visualizations.analise_de_tendencias(ano_inicial,ano_final)
 
 with tab7:
     with st.spinner("Processando..."):
         time.sleep(1)
+
+    st.caption("Implementa a estratégia de Cruzamento de Médias Móveis (20 e 50 períodos)." \
+    " Esta ferramenta de análise técnica plota o preço e as médias, gerando sinais visuais de Compra (cruzamento ascendente) ou Venda (cruzamento descendente)." \
+    " Seu objetivo é fornecer indicadores técnicos acionáveis para a identificação de reversões e a confirmação da direção do mercado.")
+
     visualizations.prev_tendencias()
 
 with tab8:

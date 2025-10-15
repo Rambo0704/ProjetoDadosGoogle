@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils import leitura_csv 
 import streamlit as st
+import plotly.express as px
 import plotly.graph_objects as go
 
 def evolucao_close(ano_inicial=None, ano_final=None):
@@ -20,10 +21,13 @@ def evolucao_close(ano_inicial=None, ano_final=None):
     st.subheader(f"Evolução do Preço de Fechamento")
     st.line_chart(df.set_index('Date')['Close'])
     
-def media_volume():
+def media_volume(ano_escolhido=None):
     df = leitura_csv()
     df['month'] = df['Date'].dt.month
     df['year'] = df['Date'].dt.year
+    if ano_escolhido is not None:
+        df = df[df['year'] == ano_escolhido]
+
     media = df.groupby(['year', 'month'])['Volume'].mean().reset_index()
 
     media['AnoMes'] = pd.to_datetime(media['year'].astype(str) + '-' + media['month'].astype(str) + '-01')
@@ -36,17 +40,27 @@ def variacao_preço_ano():
     variacao = df.groupby('year')['Close'].agg(lambda x: x.max() - x.min())
     st.bar_chart(variacao)
 
-def desvio_padrao():
+def desvio_padrao(ano_escolhido=None):
     df = leitura_csv()
     df['year'] = df['Date'].dt.year
     df['month'] = df['Date'].dt.month
+    if ano_escolhido is not None:
+        df = df[df['year'] == ano_escolhido]
+
     desvios = df.groupby(['year','month'])['Close'].std().reset_index()
     desvios['AnoMes'] = pd.to_datetime(desvios['year'].astype(str) + '-' + desvios['month'].astype(str) + '-01')
     st.bar_chart(desvios.set_index('AnoMes')['Close'])
 
-def analise_de_tendencias():
+
+def analise_de_tendencias(data_inicio=None, data_final=None):
     df = leitura_csv()
     df['Date'] = pd.to_datetime(df['Date'])
+
+    if data_inicio is not None:
+        df = df[df['Date'] >= data_inicio]
+    if data_final is not None:
+        df = df[df['Date'] <= data_final]
+
     df = df.set_index('Date')
     df['media_movel'] = df['Close'].rolling(window=30).mean()
     st.line_chart(df[['Close', 'media_movel']])
@@ -126,16 +140,28 @@ def prev_tendencias():
 
 def retorno_diario():
     df = leitura_csv()
-    df['retorno_diario'] = df['Close'].pct_change()
-    plt.figure(figsize=(10, 6))
-    plt.hist(df['retorno_diario'].dropna(), bins=50, color='skyblue', edgecolor='black')
-    plt.title('Distribuição dos Retornos Diários')
-    plt.xlabel('Retorno Diário (%)')
-    plt.ylabel('Frequência')
-    plt.grid(True)
-    plt.tight_layout()
-    fig = plt.gcf()
-    st.pyplot(fig)
+    df['retorno_diario'] = df['Close'].pct_change().dropna()
+
+    fig = px.histogram(
+        df,
+        x='retorno_diario',
+        title = "",
+        nbins=40,
+        labels={'retorno_diario': 'Retorno Diário (%)'},
+        opacity=0.8,
+    )
+    fig.update_layout(
+        bargap=0.05,
+        title = "",
+        xaxis_title="Retorno Diário (%)",
+        yaxis_title="Frequência",
+        template="plotly_white",
+        title_x=0.5,
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 def volatilidade_anual():
     df = leitura_csv()
