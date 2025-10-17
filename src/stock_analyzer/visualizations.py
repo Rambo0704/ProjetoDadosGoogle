@@ -226,28 +226,8 @@ def comparativo_ano_perfomance():
 
     retorno_anual = df.groupby('year')['retorno_diario'].mean() * 253
     volatilidade_anual = df.groupby('year')['retorno_diario'].std() * np.sqrt(252)
-    sharpe_ratio = retorno_anual / volatilidade_anual
 
-    comparativo = pd.DataFrame({
-        'Retorno Anual(%)': retorno_anual*100,
-        'Volatilidade(%)': volatilidade_anual*100,
-        'Sharpe Ratio': sharpe_ratio
-    })
-    comparativo = comparativo.round(2)
-    print(comparativo)
-    comparativo[['Retorno Anual(%)', 'Volatilidade(%)']].plot(kind='bar', figsize=(14,6))
-    plt.title('Comparação de Anos: Retorno vs Volatilidade')
-    plt.ylabel('Percentual (%)')
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
 
-    comparativo['Sharpe Ratio'].plot(kind='line', marker='o', color='green', linewidth=2)
-    plt.title('Sharpe Ratio por Ano')
-    plt.ylabel('Sharpe Ratio')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
 
 
 def melhores_piores_dias():
