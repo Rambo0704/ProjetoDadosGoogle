@@ -227,7 +227,42 @@ def comparativo_ano_perfomance():
     retorno_anual = df.groupby('year')['retorno_diario'].mean() * 253
     volatilidade_anual = df.groupby('year')['retorno_diario'].std() * np.sqrt(252)
 
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=retorno_anual.index,
+        y=retorno_anual.values,
+        name="Retorno Anual",
+        marker_color="#1f77b4",
+        text=[f"{v:.2%}" for v in retorno_anual.values],
+        textposition="outside"
+    ))
 
+    fig.add_trace(go.Bar(
+        x=volatilidade_anual.index,
+        y=volatilidade_anual.values,
+        name="Volatilidade Anual",
+        marker_color="orange",
+        text=[f"{v:.2%}" for v in volatilidade_anual.values],
+        textposition="outside"
+    ))
+
+    fig.update_layout(
+        barmode="group",
+        title="Retorno vs Volatilidade por Ano",
+        xaxis_title="Ano",
+        yaxis_title="Valor",
+        template="plotly_dark",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        margin=dict(l=40, r=40, t=80, b=40)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def melhores_piores_dias():
@@ -236,26 +271,33 @@ def melhores_piores_dias():
     df['year'] = df['Date'].dt.year
 
     melhores_idx = df.groupby('year')['retorno_diario'].idxmax()
-    melhores_dias = df.loc[melhores_idx, ['Date', 'year', 'retorno_diario', 'Close']]
-    print("Melhores dias por ano:")
-    print(melhores_dias.sort_values('year'))
+    melhores_dias = df.loc[melhores_idx, ['Date', 'year', 'retorno_diario', 'Close']].dropna()
 
     piores_idx = df.groupby('year')['retorno_diario'].idxmin()
-    piores_dias = df.loc[piores_idx, ['Date', 'year', 'retorno_diario', 'Close']]
-    print("\nPiores dias por ano:")
-    print(piores_dias.sort_values('year'))
-    plt.figure(figsize=(14, 6))
-    plt.scatter(melhores_dias['Date'], melhores_dias['retorno_diario'] * 100, color='green', label='Melhores Dias')
-    plt.scatter(piores_dias['Date'], piores_dias['retorno_diario'] * 100, color='red', label='Piores Dias')
-    plt.axhline(0, color='gray', linestyle='--')
-    plt.title('Melhores e Piores Dias por Ano (% Retorno Diário)')
-    plt.xlabel('Data')
-    plt.ylabel('Retorno Diário (%)')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+    piores_dias = df.loc[piores_idx, ['Date', 'year', 'retorno_diario', 'Close']].dropna()
 
+    comparativo = pd.DataFrame({
+        'Ano': list(melhores_dias['year']) + list(piores_dias['year']),
+        'Tipo': ['Melhor Dia'] * len(melhores_dias) + ['Pior Dia'] * len(piores_dias),
+        'Retorno (%)': list(melhores_dias['retorno_diario'] * 100) + list(piores_dias['retorno_diario'] * 100),
+        'Data': list(melhores_dias['Date'].dt.strftime('%Y-%m-%d')) + list(piores_dias['Date'].dt.strftime('%Y-%m-%d'))
+    })
+
+    fig = px.bar(
+        comparativo,
+        x='Ano',
+        y='Retorno (%)',
+        color='Tipo',
+        barmode='group',
+        text='Data',
+        labels={'Retorno (%)': 'Retorno (%)'},
+        title='Melhor e Pior Dia por Ano'
+    )
+
+    fig.update_traces(textposition='outside')
+    fig.update_layout(xaxis=dict(type='category'))
+
+    st.plotly_chart(fig)
 
 def padroes_mensais(): #Identificar Padrões Sazonais Mensais nos Retornos
     df = leitura_csv()
