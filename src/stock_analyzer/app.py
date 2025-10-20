@@ -68,8 +68,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 Google Stocks Dashboard (GOOGL)")
-st.caption("Painel de análise financeira da ação GOOGL.")
+st.title("📊 Google Stocks Dashboard ")
+st.caption("Painel de análise financeira de ações GOOGL.")
 
 st.divider()
 
@@ -93,7 +93,7 @@ col3.metric("Última Atualização", datetime.date.today().strftime("%d/%m/%Y"))
 st.divider()
 df = leitura_csv()
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13= st.tabs([
     "📁 DataFrame",
     "📈 Fechamento",
     "📊 Volume Médio",
@@ -104,7 +104,9 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
     "💹 Retornos",
     "⚡ Volatilidade",
     "💼 Sharpe Ratio",
-    "🔻 Drawdowns"
+    "🔻 Drawdowns",
+    "🆚 Retorno vs Volatilidade",
+    "📉 Melhores e Piores Dias"
 ])
 
 with tab1:
@@ -197,6 +199,16 @@ with tab11:
     with st.spinner("Identificando drawdowns..."):
         time.sleep(1)
     visualizations.identificar_drawdowns()
+
+with tab12:
+    with st.spinner("Comparando retorno e volatilidade..."):
+        time.sleep(1)
+    visualizations.comparativo_ano_perfomance()
+
+with tab13:
+    with st.spinner("Analisando melhores e piores dias..."):
+        time.sleep(1)
+    visualizations.melhores_piores_dias()
 
 st.divider()
 
