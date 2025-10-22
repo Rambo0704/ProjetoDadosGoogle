@@ -15,48 +15,74 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* Fundo e fonte */
     .stApp {
         background-color: #0e1117;
         color: #e6e6e6;
         font-family: "Inter", "Segoe UI", sans-serif;
     }
 
-    /* Títulos */
     h1, h2, h3, h4 {
         color: #f8f9fa !important;
         font-weight: 600;
     }
 
-    /* Divider */
     hr {
         border: 1px solid #2a2d35;
     }
 
-    /* Métricas */
     div[data-testid="stMetricValue"] {
         color: #00b4d8;
         font-weight: bold;
         font-size: 1.6em;
     }
+
     div[data-testid="stMetricLabel"] {
         color: #bdbdbd;
     }
 
-    /* Tabs */
+    div[data-baseweb="tab-list"] {
+        display: flex;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: thin;
+        background-color: #0e1117;
+        border-bottom: 1px solid #2a2d35;
+    }
+
+    div[data-baseweb="tab-list"]::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    div[data-baseweb="tab-list"]::-webkit-scrollbar-thumb {
+        background-color: #555;
+        border-radius: 4px;
+    }
+
+    div[data-baseweb="tab-list"]::-webkit-scrollbar-thumb:hover {
+        background-color: #777;
+    }
+
     button[data-baseweb="tab"] {
         background-color: transparent !important;
         color: #e6e6e6 !important;
         border: none !important;
-        padding: 8px 20px !important;
+        padding: 10px 24px !important;
         font-weight: 500;
+        transition: all 0.2s ease-in-out;
+        white-space: nowrap;
     }
+
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #00b4d8 !important;
         border-bottom: 2px solid #00b4d8 !important;
+        font-weight: 600;
     }
 
-    /* Rodapé */
+    button[data-baseweb="tab"]:hover {
+        color: #00b4d8 !important;
+        background-color: rgba(0, 180, 216, 0.1) !important;
+    }
+
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     .footer {
@@ -67,6 +93,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
 
 st.title("📊 Google Stocks Dashboard ")
 st.caption("Painel de análise financeira de ações GOOGL.")
@@ -93,21 +120,24 @@ col3.metric("Última Atualização", datetime.date.today().strftime("%d/%m/%Y"))
 st.divider()
 df = leitura_csv()
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13= st.tabs([
-    "📁 DataFrame",
-    "📈 Fechamento",
-    "📊 Volume Médio",
-    "📉 Variação %",
-    "📏 Desvio Padrão",
-    "📎 Média Móvel",
-    "📆 Tendências",
-    "💹 Retornos",
-    "⚡ Volatilidade",
-    "💼 Sharpe Ratio",
-    "🔻 Drawdowns",
-    "🆚 Retorno vs Volatilidade",
-    "📉 Melhores e Piores Dias"
-])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(
+    [
+        "📁 DataFrame",
+        "📈 Fechamento",
+        "📊 Volume Médio",
+        "📉 Variação %",
+        "📏 Desvio Padrão",
+        "📎 Média Móvel",
+        "📆 Tendências",
+        "💹 Retornos",
+        "⚡ Volatilidade",
+        "💼 Sharpe Ratio",
+        "🔻 Drawdowns",
+        "🆚 Retorno vs Volatilidade",
+        "📉 Melhores e Piores Dias",
+        "✅ Padrões Mensais"
+    ],
+)
 
 with tab1:
     with st.spinner("Carregando DataFrame..."):
