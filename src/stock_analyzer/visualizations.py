@@ -299,23 +299,24 @@ def melhores_piores_dias():
 
     st.plotly_chart(fig)
 
-def padroes_mensais(): #Identificar Padrões Sazonais Mensais nos Retornos
+def padroes_mensais(ano_escolhido = None): #Identificar Padrões Sazonais Mensais nos Retornos
     df = leitura_csv()
+    df['year'] = df['Date'].dt.year
     df['month'] = df['Date'].dt.month
-    df['retorno_diario'] = df['Close'].pct_change()
-    retorno_medio_mensal = df.groupby('month')['retorno_diario'].mean()*100
-    plt.figure(figsize=(12, 6))
-    retorno_medio_mensal.plot(kind='bar', color='cornflowerblue', edgecolor='black')
-    plt.title('Retorno Médio por Mês')
-    plt.xlabel('Mês')
-    plt.ylabel('Retorno Médio (%)')
-    plt.grid(axis='y', linestyle='--', alpha=0.6)
-    plt.xticks(ticks=range(0, 12), labels=[
-        'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-        'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
-    ], rotation=0)
-    plt.tight_layout()
-    plt.show()
+    df['retorno_diario_media'] = df['Close'].pct_change()
+    
+    if ano_escolhido is not None:
+        df = df[df['year'] == ano_escolhido]
+        retorno_medio_mensal = df.groupby('month')['retorno_diario_media'].mean() * 100
+        retorno_medio_mensal.index = retorno_medio_mensal.index.map({
+            1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
+            7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
+        })
+    else:
+        df['AnoMes'] = df['Date'].dt.to_period('M').astype(str)
+        retorno_medio_mensal = df.groupby('AnoMes')['retorno_diario_media'].mean() * 100
+    
+    st.bar_chart(retorno_medio_mensal)
 
 def calculo_RSI(close, window=14):
     retorno = close.diff()

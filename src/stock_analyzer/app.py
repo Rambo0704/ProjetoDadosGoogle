@@ -15,12 +15,14 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    /* Fundo e fonte */
     .stApp {
         background-color: #0e1117;
         color: #e6e6e6;
         font-family: "Inter", "Segoe UI", sans-serif;
     }
 
+    /* Títulos */
     h1, h2, h3, h4 {
         color: #f8f9fa !important;
         font-weight: 600;
@@ -30,6 +32,7 @@ st.markdown("""
         border: 1px solid #2a2d35;
     }
 
+    /* Métricas */
     div[data-testid="stMetricValue"] {
         color: #00b4d8;
         font-weight: bold;
@@ -40,6 +43,7 @@ st.markdown("""
         color: #bdbdbd;
     }
 
+    /* Tabs horizontais com scroll */
     div[data-baseweb="tab-list"] {
         display: flex;
         flex-wrap: nowrap !important;
@@ -47,6 +51,7 @@ st.markdown("""
         scrollbar-width: thin;
         background-color: #0e1117;
         border-bottom: 1px solid #2a2d35;
+        scroll-behavior: smooth; /* deixa o scroll suave */
     }
 
     div[data-baseweb="tab-list"]::-webkit-scrollbar {
@@ -62,6 +67,7 @@ st.markdown("""
         background-color: #777;
     }
 
+    /* Estilo dos botões das tabs */
     button[data-baseweb="tab"] {
         background-color: transparent !important;
         color: #e6e6e6 !important;
@@ -83,8 +89,11 @@ st.markdown("""
         background-color: rgba(0, 180, 216, 0.1) !important;
     }
 
+    /* Oculta footer e menu do Streamlit */
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
+
+    /* Rodapé personalizado */
     .footer {
         text-align: center;
         color: gray;
@@ -92,9 +101,24 @@ st.markdown("""
         padding: 20px 0;
     }
 </style>
+
+<!-- Script para scroll automático ao clicar nas abas -->
+<script>
+const observer = new MutationObserver(() => {
+  const tabList = document.querySelector('div[data-baseweb="tab-list"]');
+  if (tabList) {
+    const tabs = tabList.querySelectorAll('button[data-baseweb="tab"]');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      });
+    });
+    observer.disconnect();
+  }
+});
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
 """, unsafe_allow_html=True)
-
-
 st.title("📊 Google Stocks Dashboard ")
 st.caption("Painel de análise financeira de ações GOOGL.")
 
@@ -120,7 +144,7 @@ col3.metric("Última Atualização", datetime.date.today().strftime("%d/%m/%Y"))
 st.divider()
 df = leitura_csv()
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs(
     [
         "📁 DataFrame",
         "📈 Fechamento",
@@ -163,11 +187,9 @@ with tab3:
     " Ajuda a identificar a liquidez e o interesse do mercado na ação, com opção de filtrar por ano.")
 
     geral = st.checkbox("Todos os anos", value = True)
-
+    ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio") 
     if geral:
         ano_escolhido = None
-    else:    
-        ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio")
     visualizations.media_volume(ano_escolhido)
 
 with tab4:
@@ -185,10 +207,9 @@ with tab5:
 
     geral = st.checkbox("Todos os anos", value = True,key="dp_todos_anos_checkbox")
 
+    ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)))
     if geral:
         ano_escolhido = None
-    else: 
-        ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)))
     visualizations.desvio_padrao(ano_escolhido)
 
 with tab6:
@@ -239,6 +260,15 @@ with tab13:
     with st.spinner("Analisando melhores e piores dias..."):
         time.sleep(1)
     visualizations.melhores_piores_dias()
+
+with tab14:
+    with st.spinner("Analisando padrões mensais..."):
+        time.sleep(1)
+    geral = st.checkbox("Todos os anos", value = True,key="dp_todos_anos_checkbox_padroes")
+    ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio_padroes")
+    if geral:
+        ano_escolhido = None
+    visualizations.padroes_mensais(ano_escolhido)
 
 st.divider()
 
