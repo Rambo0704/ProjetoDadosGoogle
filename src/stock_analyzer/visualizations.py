@@ -42,15 +42,24 @@ def variacao_preço_ano():
 
 def desvio_padrao(ano_escolhido=None):
     df = leitura_csv()
+    df['Date'] = pd.to_datetime(df['Date'])
     df['year'] = df['Date'].dt.year
     df['month'] = df['Date'].dt.month
+
     if ano_escolhido is not None:
         df = df[df['year'] == ano_escolhido]
 
-    desvios = df.groupby(['year','month'])['Close'].std().reset_index()
-    desvios['AnoMes'] = pd.to_datetime(desvios['year'].astype(str) + '-' + desvios['month'].astype(str) + '-01')
-    st.bar_chart(desvios.set_index('AnoMes')['Close'])
+    desvios = (df.groupby(['year', 'month'])['Close'].std().reset_index())
+    desvios['mes_nome'] = desvios['month'].map({
+        1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
+        7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
+    })
 
+    if ano_escolhido is not None:
+        st.bar_chart(desvios.set_index('mes_nome')['Close'])
+    else:
+        desvios['AnoMes'] = pd.to_datetime(desvios['year'].astype(str) + '-' + desvios['month'].astype(str) + '-01')
+        st.bar_chart(desvios.set_index('AnoMes')['Close'])
 
 def analise_de_tendencias(data_inicio=None, data_final=None):
     df = leitura_csv()
@@ -299,24 +308,31 @@ def melhores_piores_dias():
 
     st.plotly_chart(fig)
 
-def padroes_mensais(ano_escolhido = None): #Identificar Padrões Sazonais Mensais nos Retornos
+def padroes_mensais(ano_escolhido=None):
     df = leitura_csv()
+    df['Date'] = pd.to_datetime(df['Date'])
     df['year'] = df['Date'].dt.year
     df['month'] = df['Date'].dt.month
-    df['retorno_diario_media'] = df['Close'].pct_change()
-    
+    df['retorno_diario'] = df['Close'].pct_change()
+
     if ano_escolhido is not None:
         df = df[df['year'] == ano_escolhido]
-        retorno_medio_mensal = df.groupby('month')['retorno_diario_media'].mean() * 100
-        retorno_medio_mensal.index = retorno_medio_mensal.index.map({
-            1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
-            7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
-        })
+
+    retorno_medio = (df.groupby(['year', 'month'])['retorno_diario'].mean().reset_index())
+
+    retorno_medio['retorno_diario'] *= 100
+    retorno_medio['mes_nome'] = retorno_medio['month'].map({
+        1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
+        7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
+    })
+
+    if ano_escolhido is not None:
+        st.bar_chart(retorno_medio.set_index('mes_nome')['retorno_diario'])
     else:
-        df['AnoMes'] = df['Date'].dt.to_period('M').astype(str)
-        retorno_medio_mensal = df.groupby('AnoMes')['retorno_diario_media'].mean() * 100
-    
-    st.bar_chart(retorno_medio_mensal)
+        retorno_medio['AnoMes'] = pd.to_datetime(
+            retorno_medio['year'].astype(str) + '-' + retorno_medio['month'].astype(str) + '-01'
+        )
+        st.bar_chart(retorno_medio.set_index('AnoMes')['retorno_diario'])
 
 def calculo_RSI(close, window=14):
     retorno = close.diff()

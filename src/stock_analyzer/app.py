@@ -206,10 +206,10 @@ with tab5:
     "Permite filtrar o cálculo por ano para analisar a instabilidade em períodos específicos.")
 
     geral = st.checkbox("Todos os anos", value = True,key="dp_todos_anos_checkbox")
-
-    ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)))
     if geral:
         ano_escolhido = None
+    else:
+        ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)))
     visualizations.desvio_padrao(ano_escolhido)
 
 with tab6:
@@ -265,9 +265,10 @@ with tab14:
     with st.spinner("Analisando padrões mensais..."):
         time.sleep(1)
     geral = st.checkbox("Todos os anos", value = True,key="dp_todos_anos_checkbox_padroes")
-    ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio_padroes")
     if geral:
         ano_escolhido = None
+    else:
+        ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio_padroes")
     visualizations.padroes_mensais(ano_escolhido)
 
 st.divider()
