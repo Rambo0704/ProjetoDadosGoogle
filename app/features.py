@@ -20,19 +20,19 @@ def estatisticas_descritivas():
     print(f"Datas:\n Minima:{df['Date'].min()}\n Maxima:{df['Date'].max()}")
 
 
-def calculo_RSI(close, window=14):
-    retorno = close.diff()
-    ganhos = retorno.apply(lambda x: x if x > 0 else 0)
-    perdas = retorno.apply(lambda x: -x if x < 0 else 0)
-
-    media_ganhos = ganhos.rolling(window=window).mean()
-    media_perdas = perdas.rolling(window=window).mean()
-
-    RS = media_ganhos / media_perdas
-    RSI = 100 - (100 / (1 + RS))
-
-
-    return RSI
+def calculo_RSI(dados, periodos=14):
+    retorno = dados.diff()
+    
+    ganhos = retorno.clip(lower=0)
+    perdas = retorno.clip(upper=0).abs()
+    
+    media_ganhos = ganhos.rolling(window=periodos, min_periods=periodos).mean()
+    media_perdas = perdas.rolling(window=periodos, min_periods=periodos).mean()
+    
+    rs = media_ganhos / media_perdas
+    rsi = 100 - (100 / (1 + rs))
+    
+    return rsi
 
 def calculate_MACD(series, fast=12, slow=26, signal=9):
     ema_fast = series.ewm(span=fast, adjust=False).mean()
