@@ -5,7 +5,7 @@ import joblib
 
 def api_dados():
 
-    df = yf.download('GOOGL', period='1y')
+    df = yf.download('GOOGL', period='2y', auto_adjust=False, multi_level_index=False)
     
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.droplevel(1)
@@ -56,50 +56,108 @@ def api_dados():
     return df
 
 
-def prever_compra():
+def prever_tendencia():
 
     df = api_dados()
 
-    modelo = joblib.load("../models/modelo_xgb.pkl")
-    scaler = joblib.load("../models/scaler.pkl")
-    features = joblib.load("../models/features.pkl")
-    imputer = joblib.load("../models/imputer.pkl")
-    config = joblib.load("../models/config.pkl")
-    threshold = joblib.load("../models/threshold.pkl")
-
-
     ultima_linha = df.iloc[[-1]].copy()
-    data_analise = ultima_linha.index[0]    
+    data_analise = ultima_linha.index[0]
 
-    X = ultima_linha[features]
-    X = imputer.transform(X)
-    X = scaler.transform(X)
-  
 
-    prob = modelo.predict_proba(X)[:, 1][0]
+    try:
+        modelo_c = joblib.load("../models/ml_compra/modelo_compra.pkl")
+        scaler_c = joblib.load("../models/ml_compra/scaler_compra.pkl")
+        imputer_c = joblib.load("../models/ml_compra/imputer_compra.pkl")
+        features_c = joblib.load("../models/ml_compra/features_compra.pkl")
+        config_c = joblib.load("../models/ml_compra/config_compra.pkl")
+        threshold_c = joblib.load("../models/ml_compra/threshold_compra.pkl")
+
+        X_c = ultima_linha[features_c]
+        X_c = imputer_c.transform(X_c)
+        X_c = scaler_c.transform(X_c)
+
+        prob_compra = modelo_c.predict_proba(X_c)[:, 1][0]
+    except Exception as e:
+        print(f"Erro ao carregar modelo de compra: {e}")
+        prob_compra = 0
+        threshold_c = 1.0
+
+    try:
+        modelo_q = joblib.load("../models/ml_queda/modelo_queda.pkl")
+        scaler_q = joblib.load("../models/ml_queda/scaler_queda.pkl")
+        imputer_q = joblib.load("../models/ml_queda/imputer_queda.pkl")
+        features_q = joblib.load("../models/ml_queda/features_queda.pkl")
+        config_q = joblib.load("../models/ml_queda/config_queda.pkl")
+        threshold_q = joblib.load("../models/ml_queda/threshold_queda.pkl")
+
+        X_q = ultima_linha[features_q]
+        X_q = imputer_q.transform(X_q)
+        X_q = scaler_q.transform(X_q)
+
+        prob_queda = modelo_q.predict_proba(X_q)[:, 1][0]
+    except Exception as e:
+        print(f"Erro ao carregar modelo de queda: {e}")
+        prob_queda = 0
+        threshold_q = 1.0
+
+
     
-    if prob >= threshold:
-            decisao = "COMPRA"
-            mensagem = f"Sinal forte! Probabilidade ({prob:.1%}) acima da nota de corte ({threshold:.1%})."
+    decisao = "NEUTRO"
+    mensagem = "Mercado indefinido. Aguardar."
+    detalhes = ""
+
+
+    if prob_compra >= threshold_c:
+
+        if prob_compra >= (threshold_c + 1/100):
+            intensidade = "FORTE"
+        else:
+            intensidade = "MODERADA"
+
+        decisao = "COMPRA"
+        mensagem = f"Sinal de ALTA {intensidade}. Probabilidade estimada pelo modelo ({prob_compra:.1%}) supera o limiar de decisão ({threshold_c:.1%})."
+        
+        horizonte = config_c.get('horizonte', '?')
+        lucro = config_c.get('movimento_minimo', 0) * 100
+        detalhes = f"Modelo prevê alta de +{lucro:.1f}% em {horizonte} dias."
+
+    elif prob_queda >= threshold_q:
+        
+        if prob_queda >= (threshold_q + 1/100):
+            intensidade = "FORTE"
+        else:
+            intensidade = "MODERADA"
+
+        decisao = "VENDA"
+        mensagem = f"Sinal de BAIXA {intensidade}. Probabilidade estimada pelo modelo ({prob_queda:.1%}) supera o limiar de decisão ({threshold_q:.1%})."
+        
+        horizonte = config_q.get('horizonte', '?')
+        perda = config_q.get('movimento_minimo', 0) * 100
+        detalhes = f"Modelo prevê queda de -{perda:.1f}% em {horizonte} dias."
+
     else:
         decisao = "AGUARDAR"
-        mensagem = f"Risco alto. Probabilidade ({prob:.1%}) abaixo da nota de corte ({threshold:.1%})."
+        mensagem = f"Sem sinais claros. Alta: {prob_compra:.1%}(Probabilidade estimada pelo modelo) (Corte: {threshold_c:.1%}) | Baixa: {prob_queda:.1%}(Probabilidade estimada pelo modelo) (Corte: {threshold_q:.1%})"
+        detalhes = "O mercado não apresentou os padrões estatísticos treinados."
 
-    horizonte = config.get('horizonte', '?')
-    meta_lucro = config.get('movimento_minimo', 0) * 100
-    
-    detalhes = f"Modelo treinado para buscar +{meta_lucro:.1f}% em {horizonte} dias."
-    
+    if (prob_compra >= threshold_c) and (prob_queda >= threshold_q):
+        forca_compra = prob_compra / threshold_c
+        forca_queda = prob_queda / threshold_q
+        
+        if forca_queda > forca_compra:
+            decisao = "VENDA (Volatilidade Alta)"
+            mensagem = "Conflito de sinais, mas a tendência de QUEDA é estatisticamente mais forte."
+        else:
+            decisao = "COMPRA (Volatilidade Alta)"
+            mensagem = "Conflito de sinais, mas a tendência de ALTA é estatisticamente mais forte."
+
     return {
         "decisao": decisao,
-        "probabilidade": prob,
-        "threshold_usado": threshold,
-        "mensagem_explicativa": mensagem,
+        "prob_alta": prob_compra,
+        "prob_queda": prob_queda,
+        "mensagem": mensagem,
         "detalhes_modelo": detalhes,
-        "data_referencia" : data_analise
+        "data_referencia": data_analise
     }
-
-
-
-test = prever_compra()
+test = prever_tendencia()
 print(test)

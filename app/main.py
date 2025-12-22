@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from utils import leitura_csv
 import visualizations
-
+import ml
 st.set_page_config(
     page_title="Google Stocks Dashboard",
     page_icon="📈",
@@ -144,7 +144,7 @@ col3.metric("Última Atualização", datetime.datetime.now().strftime("%d/%m/%Y 
 st.divider()
 df = leitura_csv()
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs(
     [
         "📁 DataFrame",
         "📈 Fechamento",
@@ -159,7 +159,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13
         "🔻 Drawdowns",
         "🆚 Retorno vs Volatilidade",
         "📉 Melhores e Piores Dias",
-        "✅ Padrões Mensais"
+        "✅ Padrões Mensais",
+        "🤖 Previsão de Compra"
     ],
 )
 
@@ -271,7 +272,101 @@ with tab14:
         ano_escolhido = st.number_input("Selecione o ano", min_value=int(min(anos)), max_value=int(max(anos)), value=int(max(anos)),key="dp_filtro_desvio_padroes")
     visualizations.padroes_mensais(ano_escolhido)
 
-st.divider()
+with tab15:
+    with st.spinner("🔍 Analisando modelos de Machine Learning..."):
+        time.sleep(1)
+
+    st.caption(
+        "Esta seção apresenta uma análise preditiva utilizando modelos de Machine Learning "
+        "para identificar **sinais estatísticos de ALTA e QUEDA**, com base em padrões "
+        "históricos dos preços das ações da Google (GOOGL)."
+    )
+
+    # =========================
+    # DISCLAIMER
+    # =========================
+    st.warning(
+        "⚠️ **Aviso Importante (Uso Acadêmico)**\n\n"
+        "Os modelos de Inteligência Artificial apresentados realizam previsões considerando um "
+        "**horizonte de curto prazo**, definido durante o treinamento, com base exclusivamente "
+        "em **dados históricos e indicadores técnicos**.\n\n"
+        "**Este sistema possui finalidade exclusivamente acadêmica e educacional.** "
+        "As informações exibidas **não constituem recomendação de investimento** "
+        "e **não devem ser utilizadas para decisões financeiras reais**.\n\n"
+        "O autor do projeto **não se responsabiliza por eventuais perdas financeiras**, "
+        "diretas ou indiretas, decorrentes do uso destas informações."
+    )
+
+    # =========================
+    # PREVISÃO
+    # =========================
+    prev = ml.prever_tendencia()
+    decisao = prev["decisao"].lower()
+
+    st.markdown("## 📊 Resultado Consolidado")
+
+    # Destaque da decisão final
+    if "compra" in decisao:
+        st.success(f"📈 **Decisão Final do Sistema:** {prev['decisao']}")
+    elif "venda" in decisao:
+        st.error(f"📉 **Decisão Final do Sistema:** {prev['decisao']}")
+    else:
+        st.info(f"⚖️ **Decisão Final do Sistema:** {prev['decisao']}")
+
+    st.markdown(f"**Mensagem do Sistema:**\n\n{prev['mensagem']}")
+
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### 📈 Modelo de Alta (Compra)")
+        st.metric(
+            label="Probabilidade estimada",
+            value=f"{prev['prob_alta']:.1%}"
+        )
+        st.markdown(
+            "Representa a **confiança estatística interna** do modelo "
+            "em identificar padrões associados a movimentos de alta.\n\n"
+            "**Não representa garantia de lucro.**"
+        )
+
+    with col2:
+        st.markdown("### 📉 Modelo de Queda (Venda)")
+        st.metric(
+            label="Probabilidade estimada",
+            value=f"{prev['prob_queda']:.1%}"
+        )
+        st.markdown(
+            "Representa a **confiança estatística interna** do modelo "
+            "em identificar padrões associados a movimentos de queda.\n\n"
+            "**Não representa garantia de acerto.**"
+        )
+
+    # =========================
+    # DETALHES TÉCNICOS
+    # =========================
+    with st.expander("📄 Detalhes Técnicos da Análise"):
+        st.markdown(
+            f"**🔧 Interpretação do Sistema:**\n\n"
+            f"{prev['detalhes_modelo'] if prev['detalhes_modelo'] else 'Nenhum padrão forte identificado.'}"
+        )
+
+        st.markdown(f"**📅 Data de Referência da Análise:** {prev['data_referencia']}")
+
+        st.markdown(
+            "⚖️ **Nota sobre Conflito de Sinais:**\n\n"
+            "Os modelos de alta e queda são **independentes**. "
+            "Em cenários de alta volatilidade ou mercado lateral, "
+            "ambos podem emitir sinais simultâneos ou nenhum sinal relevante. "
+            "Nestes casos, o sistema prioriza a **força estatística relativa** entre eles."
+        )
+
+        st.markdown(
+            "📉 **Nota Final:** O mercado financeiro é influenciado por fatores "
+            "macroeconômicos, eventos externos e comportamentos imprevisíveis, "
+            "os quais **não são totalmente capturados pelos modelos**."
+        )
+
 
 st.markdown("""
 <div class="footer">
