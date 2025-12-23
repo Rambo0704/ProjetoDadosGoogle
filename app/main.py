@@ -7,6 +7,7 @@ import numpy as np
 from utils import leitura_csv
 import visualizations
 import ml
+
 st.set_page_config(
     page_title="Google Stocks Dashboard",
     page_icon="📈",
@@ -51,7 +52,7 @@ st.markdown("""
         scrollbar-width: thin;
         background-color: #0e1117;
         border-bottom: 1px solid #2a2d35;
-        scroll-behavior: smooth; /* deixa o scroll suave */
+        scroll-behavior: smooth;
     }
 
     div[data-baseweb="tab-list"]::-webkit-scrollbar {
@@ -102,7 +103,6 @@ st.markdown("""
     }
 </style>
 
-<!-- Script para scroll automático ao clicar nas abas -->
 <script>
 const observer = new MutationObserver(() => {
   const tabList = document.querySelector('div[data-baseweb="tab-list"]');
@@ -119,17 +119,31 @@ const observer = new MutationObserver(() => {
 observer.observe(document.body, { childList: true, subtree: true });
 </script>
 """, unsafe_allow_html=True)
+
 st.title("📊 Google Stocks Dashboard ")
 st.caption("Painel de análise financeira de ações GOOGL.")
 
 st.divider()
 
-googl = yf.Ticker("GOOGL")
-info = googl.info
+@st.cache_data(ttl=3600)
+def carregar_dados_topo():
+    try:
+        tick = yf.Ticker("GOOGL")
+        return tick.info, tick.history(period="2d")
+    except Exception:
+        return None, pd.DataFrame()
 
-preco_atual = info.get("currentPrice", 0)
-volume_medio = info.get("averageVolume", 0)
-hist = googl.history(period="2d")
+info, hist = carregar_dados_topo()
+
+preco_atual = 0.0
+volume_medio = 0
+
+if info:
+    preco_atual = info.get("currentPrice", 0)
+    volume_medio = info.get("averageVolume", 0)
+
+if preco_atual == 0 and not hist.empty:
+    preco_atual = hist["Close"].iloc[-1]
 
 if len(hist) >= 2:
     preco_ontem = hist["Close"].iloc[-2]
@@ -219,8 +233,16 @@ with tab6:
     st.caption("Calcula e exibe a Média Móvel de 30 dias do preço de fechamento ('Close') em um gráfico de linha, junto ao preço real. É uma ferramenta essencial para filtrar o ruído do mercado e identificar a tendência principal (alta, baixa ou lateralização) da ação da Google. " \
     "Permite filtrar o período de análise pelas datas inicial e final.")
     dia_ano = df["Date"].dt.date.values
-    ano_inicial,ano_final = st.slider("Selecionae o intervalo de anos",min_value=min(dia_ano),max_value=max(dia_ano),value=(min(dia_ano), max(dia_ano)),key="dp_filtro_media_movel")
-    visualizations.analise_de_tendencias(pd.to_datetime(ano_inicial), pd.to_datetime(ano_final))
+    min_date = min(dia_ano)
+    max_date = max(dia_ano)
+    data_inicial, data_final = st.slider(
+        "Selecione o intervalo de datas",
+        min_value=min_date,
+        max_value=max_date,
+        value=(min_date, max_date),
+        key="dp_filtro_media_movel"
+    )
+    visualizations.analise_de_tendencias(pd.to_datetime(data_inicial), pd.to_datetime(data_final))
 
 with tab7:
     with st.spinner("Processando..."):

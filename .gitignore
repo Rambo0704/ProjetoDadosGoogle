@@ -15,20 +15,6 @@ anaconda_projects/
 .ipynb_checkpoints/
 .virtual_documents/
 
-
-models/ml_compra
-*.pkl
-*.h5
-*.joblib
-*.pt
-*.pth
-models/ml_queda
-*.pkl
-*.h5
-*.joblib
-*.pt
-*.pth
-
 .env
 
 
