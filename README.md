@@ -80,7 +80,7 @@ Certifique-se de que o arquivo data/GoogleStockPrices.csv está presente (para t
 
 Execute todas as células ("Run All").
 
-O script irá ler o CSV, treinar o XGBoost e salvar os arquivos .pkl nas pastas models/ml_compra e models/ml_queda.
+O script irá ler o CSV, treinar o XGBoost e salvar os arquivos .pkl nas pastas previamentes criadas manualmente models/ml_compra e models/ml_queda.
 
 5. Executar o Dashboard
 Após o treino estar concluído, inicie a aplicação que usará a API do Yahoo Finance para previsões atuais:
