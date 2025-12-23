@@ -91,7 +91,7 @@ O navegador abrirá automaticamente no endereço http://localhost:8501.
 ⚠️ Disclaimer (Aviso Legal)
 Este projeto tem fins estritamente educacionais e académicos. As previsões geradas pelos modelos de Inteligência Artificial baseiam-se em padrões estatísticos passados e não constituem recomendação de investimento. O mercado financeiro é volátil e imprevisível; não utilize esta ferramenta para tomar decisões financeiras reais.
 
-📜 Licença
+📜
 Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para mais detalhes.
 
 👨‍💻
