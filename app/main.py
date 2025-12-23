@@ -282,11 +282,8 @@ with tab15:
         "históricos dos preços das ações da Google (GOOGL)."
     )
 
-    # =========================
-    # DISCLAIMER
-    # =========================
     st.warning(
-        "⚠️ **Aviso Importante (Uso Acadêmico)**\n\n"
+        "⚠️ **Aviso Importante**\n\n"
         "Os modelos de Inteligência Artificial apresentados realizam previsões considerando um "
         "**horizonte de curto prazo**, definido durante o treinamento, com base exclusivamente "
         "em **dados históricos e indicadores técnicos**.\n\n"
@@ -297,21 +294,17 @@ with tab15:
         "diretas ou indiretas, decorrentes do uso destas informações."
     )
 
-    # =========================
-    # PREVISÃO
-    # =========================
     prev = ml.prever_tendencia()
     decisao = prev["decisao"].lower()
 
     st.markdown("## 📊 Resultado Consolidado")
 
-    # Destaque da decisão final
     if "compra" in decisao:
-        st.success(f"📈 **Decisão Final do Sistema:** {prev['decisao']}")
+        st.success(f"📈 **Decisão:** {prev['decisao']}")
     elif "venda" in decisao:
-        st.error(f"📉 **Decisão Final do Sistema:** {prev['decisao']}")
+        st.error(f"📉 **Decisão:** {prev['decisao']}")
     else:
-        st.info(f"⚖️ **Decisão Final do Sistema:** {prev['decisao']}")
+        st.info(f"⚖️ **Decisão:** {prev['decisao']}")
 
     st.markdown(f"**Mensagem do Sistema:**\n\n{prev['mensagem']}")
 
@@ -342,9 +335,6 @@ with tab15:
             "**Não representa garantia de acerto.**"
         )
 
-    # =========================
-    # DETALHES TÉCNICOS
-    # =========================
     with st.expander("📄 Detalhes Técnicos da Análise"):
         st.markdown(
             f"**🔧 Interpretação do Sistema:**\n\n"
@@ -355,14 +345,17 @@ with tab15:
 
         st.markdown(
             "⚖️ **Nota sobre Conflito de Sinais:**\n\n"
-            "Os modelos de alta e queda são **independentes**. "
+            "Os modelos de alta e queda são **independentes**.\n"
+            "Ambos utilizam tecncas de Machine Learning supervisionado, treinados para identificar padrões distintos.\n\n"
             "Em cenários de alta volatilidade ou mercado lateral, "
             "ambos podem emitir sinais simultâneos ou nenhum sinal relevante. "
             "Nestes casos, o sistema prioriza a **força estatística relativa** entre eles."
         )
 
+        st.markdown("O modelo utiliza técnicas de Machine Learning supervisionado, ")
+        
         st.markdown(
-            "📉 **Nota Final:** O mercado financeiro é influenciado por fatores "
+            "**Nota Final:** O mercado financeiro é influenciado por fatores "
             "macroeconômicos, eventos externos e comportamentos imprevisíveis, "
             "os quais **não são totalmente capturados pelos modelos**."
         )
