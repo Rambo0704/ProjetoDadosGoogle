@@ -1,15 +1,22 @@
 import pandas as pd
+import os
 
 def leitura_csv():
-    df = pd.read_csv("../data/GoogleStockPrices.csv")
-    df['Date'] = pd.to_datetime(df['Date'])
-    return df
+    diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+    caminho_arquivo = os.path.join(diretorio_atual, "..", "data", "GoogleStockPrices.csv")
+    try:
+        df = pd.read_csv(caminho_arquivo)
+        df['Date'] = pd.to_datetime(df['Date'])
+        return df
+    except FileNotFoundError:
+        return pd.read_csv("data/GoogleStockPrices.csv")
 
 def qualidade_dados():
     df = leitura_csv()
     print(f"Nulos:\n{df.isna().sum()}")
     print(f" duplicados: {df.duplicated().sum()}")
-    print(f"{(df[['Open','High','Low','Close','Volume']]<0).sum()}")
+    cols_numericas = ['Open','High','Low','Close','Volume']
+    print(f"{(df[cols_numericas]<0).sum()}")
     print(f"Inconsistencia:\n{df[df['High'] < df['Low']]}")
 
 def estatisticas_descritivas():
