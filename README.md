@@ -53,11 +53,10 @@ O sistema utiliza **dois modelos XGBoost Classifier independentes** para evitar 
 Certifique-se de ter o **Python 3.10+** instalado.
 
 ### 1. Clonar o Repositório
-```bash
+```
 git clone [https://github.com/SEU_USUARIO/ProjetoDadosGoogle.git](https://github.com/SEU_USUARIO/ProjetoDadosGoogle.git)
 cd ProjetoDadosGoogle
 2. Criar um Ambiente Virtual (Recomendado)
-Bash
 
 # Windows
 python -m venv venv
@@ -67,10 +66,10 @@ python -m venv venv
 python3 -m venv venv
 source venv/bin/activate
 3. Instalar Dependências
-Bash
 
 pip install -r requirements.txt
-4. ⚠️ Treinar os Modelos (Passo Obrigatório)
+
+4.  Treinar os Modelos 
 Os modelos de Inteligência Artificial (.pkl) não estão incluídos no repositório para garantir que tenhas a versão mais recente treinada com dados frescos. Antes de rodar o dashboard, precisas gerá-los:
 
 Abra o notebook de treino:
@@ -86,11 +85,9 @@ O script irá ler o CSV, treinar o XGBoost e salvar os arquivos .pkl nas pastas 
 5. Executar o Dashboard
 Após o treino estar concluído, inicie a aplicação que usará a API do Yahoo Finance para previsões atuais:
 
-Bash
-
 streamlit run app/main.py
 O navegador abrirá automaticamente no endereço http://localhost:8501.
-
+```
 ⚠️ Disclaimer (Aviso Legal)
 Este projeto tem fins estritamente educacionais e académicos. As previsões geradas pelos modelos de Inteligência Artificial baseiam-se em padrões estatísticos passados e não constituem recomendação de investimento. O mercado financeiro é volátil e imprevisível; não utilize esta ferramenta para tomar decisões financeiras reais.
 
