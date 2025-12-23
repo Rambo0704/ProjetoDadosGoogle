@@ -346,7 +346,7 @@ with tab15:
             "Ambos utilizam tecncas de Machine Learning supervisionado, treinados para identificar padrões distintos.\n\n"
             "Em cenários de alta volatilidade ou mercado lateral, "
             "ambos podem emitir sinais simultâneos ou nenhum sinal relevante. "
-            "Nestes casos, o sistema prioriza a **força estatística relativa** entre eles."
+            "Nestes casos, o sistema prioriza a neutralidade na decisão final."
         )
    
         st.markdown(

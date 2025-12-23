@@ -115,7 +115,7 @@ def prever_tendencia():
             intensidade = "MODERADA"
             
         decisao = "VENDA"
-        mensagem = f"Sinal de BAIXA {intensidade}. Probabilidade ({prob_queda:.1%})."
+        mensagem = f"Sinal de BAIXA {intensidade}. Probabilidade ({prob_queda:.1%}) Limiar ({threshold_q:.1%})."
         
         hz = config_q.get('horizonte', '?')
         pct = config_q.get('movimento_minimo', 0) * 100
@@ -128,7 +128,7 @@ def prever_tendencia():
             intensidade = "MODERADA"
 
         decisao = "COMPRA"
-        mensagem = f"Sinal de ALTA {intensidade}."
+        mensagem = f"Sinal de ALTA {intensidade}.Probabilidade ({prob_compra:.1%}) Limiar ({threshold_c:.1%})."
         
         hz = config_c.get('horizonte', '?')
         pct = config_c.get('movimento_minimo', 0) * 100
