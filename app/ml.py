@@ -138,12 +138,13 @@ def prever_tendencia():
         decisao = "AGUARDAR"
         mensagem = f"Sem direção clara. C: {prob_compra:.1%} | V: {prob_queda:.1%}"
         detalhes = "Aguardando definição de tendência."
-
     return {
         "decisao": decisao,
         "prob_alta": prob_compra,
         "prob_queda": prob_queda,
         "mensagem": mensagem,
+        "threshold_compra": threshold_c,
+        "threshold_queda": threshold_q,
         "detalhes_modelo": detalhes,
         "data_referencia": data_analise
     }

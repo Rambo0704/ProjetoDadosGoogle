@@ -218,9 +218,9 @@ with tab6:
         time.sleep(1)
     st.caption("Calcula e exibe a Média Móvel de 30 dias do preço de fechamento ('Close') em um gráfico de linha, junto ao preço real. É uma ferramenta essencial para filtrar o ruído do mercado e identificar a tendência principal (alta, baixa ou lateralização) da ação da Google. " \
     "Permite filtrar o período de análise pelas datas inicial e final.")
-    dia_ano = np.array(df["Date"].dt.to_pydatetime())
+    dia_ano = df["Date"].dt.date.values
     ano_inicial,ano_final = st.slider("Selecionae o intervalo de anos",min_value=min(dia_ano),max_value=max(dia_ano),value=(min(dia_ano), max(dia_ano)),key="dp_filtro_media_movel")
-    visualizations.analise_de_tendencias(ano_inicial,ano_final)
+    visualizations.analise_de_tendencias(pd.to_datetime(ano_inicial), pd.to_datetime(ano_final))
 
 with tab7:
     with st.spinner("Processando..."):
@@ -297,7 +297,7 @@ with tab15:
     prev = ml.prever_tendencia()
     decisao = prev["decisao"].lower()
 
-    st.markdown("## 📊 Resultado Consolidado")
+    st.markdown("## Resultado")
 
     if "compra" in decisao:
         st.success(f"📈 **Decisão:** {prev['decisao']}")
@@ -307,7 +307,9 @@ with tab15:
         st.info(f"⚖️ **Decisão:** {prev['decisao']}")
 
     st.markdown(f"**Mensagem do Sistema:**\n\n{prev['mensagem']}")
-
+    st.markdown(
+            f"{prev['detalhes_modelo'] if prev['detalhes_modelo'] else 'Nenhum padrão forte identificado.'}"
+        )
 
     col1, col2 = st.columns(2)
 
@@ -315,7 +317,7 @@ with tab15:
         st.markdown("### 📈 Modelo de Alta (Compra)")
         st.metric(
             label="Probabilidade estimada",
-            value=f"{prev['prob_alta']:.1%}"
+            value=f"{prev['prob_alta']:.2%}"
         )
         st.markdown(
             "Representa a **confiança estatística interna** do modelo "
@@ -327,7 +329,7 @@ with tab15:
         st.markdown("### 📉 Modelo de Queda (Venda)")
         st.metric(
             label="Probabilidade estimada",
-            value=f"{prev['prob_queda']:.1%}"
+            value=f"{prev['prob_queda']:.2%}"
         )
         st.markdown(
             "Representa a **confiança estatística interna** do modelo "
@@ -336,28 +338,21 @@ with tab15:
         )
 
     with st.expander("📄 Detalhes Técnicos da Análise"):
-        st.markdown(
-            f"**🔧 Interpretação do Sistema:**\n\n"
-            f"{prev['detalhes_modelo'] if prev['detalhes_modelo'] else 'Nenhum padrão forte identificado.'}"
-        )
 
         st.markdown(f"**📅 Data de Referência da Análise:** {prev['data_referencia']}")
 
         st.markdown(
-            "⚖️ **Nota sobre Conflito de Sinais:**\n\n"
             "Os modelos de alta e queda são **independentes**.\n"
             "Ambos utilizam tecncas de Machine Learning supervisionado, treinados para identificar padrões distintos.\n\n"
             "Em cenários de alta volatilidade ou mercado lateral, "
             "ambos podem emitir sinais simultâneos ou nenhum sinal relevante. "
             "Nestes casos, o sistema prioriza a **força estatística relativa** entre eles."
         )
-
-        st.markdown("O modelo utiliza técnicas de Machine Learning supervisionado, ")
-        
+   
         st.markdown(
-            "**Nota Final:** O mercado financeiro é influenciado por fatores "
+            "**O mercado financeiro é influenciado por fatores "
             "macroeconômicos, eventos externos e comportamentos imprevisíveis, "
-            "os quais **não são totalmente capturados pelos modelos**."
+            "os quais não são totalmente capturados pelos modelos**."
         )
 
 
