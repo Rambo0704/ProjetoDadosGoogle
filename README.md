@@ -94,5 +94,5 @@ Este projeto tem fins estritamente educacionais e académicos. As previsões ger
 📜 Licença
 Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para mais detalhes.
 
-👨‍💻 Autor
+👨‍💻
 Desenvolvido por Gabriel Rambo
