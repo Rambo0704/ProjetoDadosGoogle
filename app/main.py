@@ -7,7 +7,7 @@ import numpy as np
 from utils import leitura_csv
 import visualizations
 import ml
-
+from zoneinfo import ZoneInfo
 st.set_page_config(
     page_title="Google Stocks Dashboard",
     page_icon="📈",
@@ -154,7 +154,7 @@ else:
 col1, col2, col3 = st.columns(3)
 col1.metric("Preço Atual", f"${preco_atual:.2f}", f"{variacao_pct:+.2f}%")
 col2.metric("Volume Médio (3M)", f"{volume_medio:,}")
-col3.metric("Última Atualização", datetime.datetime.now().strftime("%d/%m/%Y %H:%M"))
+col3.metric("Última Atualização", datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M"))
 st.divider()
 df = leitura_csv()
 
